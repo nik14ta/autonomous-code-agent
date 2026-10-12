@@ -1,200 +1,175 @@
 # 🤖 Autonomous Code Agent
 
-> A production-grade AI agent that reads GitHub Issues, analyzes your codebase, generates bug fixes, runs tests, and opens Pull Requests — with a human approval checkpoint before touching your code.
+> A production-grade Autonomous AI Software Engineer Agent that inspects GitHub Issues, clones & analyzes codebases, localizes bugs with AST reasoning, generates unified code diffs, runs test suites, and opens Pull Requests — featuring an interactive Human-in-the-Loop approval checkpoint before touching your repository.
 
 ---
 
-## ✨ Demo
+## 🛠️ Complete Tech Stack & Languages
 
-```
-GitHub Issue → Agent Analyzes → Fix Proposed → You Approve → PR Created
-```
+### 💻 Frontend (Client Dashboard)
+- **Languages:** JavaScript (ES6+), HTML5, CSS3
+- **Framework & Build:** React 19, Vite
+- **UI Architecture & Design:** Modern Dark Studio Theme, Responsive Grid, Lucide Icons
+- **State & Networking:** React Hooks (`useState`, `useEffect`, `useRef`), Fetch API with real-time polling/streaming
 
-![Agent Workflow](https://img.shields.io/badge/LangGraph-Multi--Node%20Agent-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
-![Python](https://img.shields.io/badge/Python-3.10+-yellow)
+### ⚙️ Backend (API & Agent Pipeline)
+- **Language:** Python 3.10+
+- **Framework:** FastAPI, Uvicorn (ASGI Async Server)
+- **Agent Orchestration:** LangGraph (StateGraph with `interrupt_before` approval checkpoint, MemorySaver checkpointer)
+- **LLM & Tooling:** LangChain, Google Gemini 2.0 Flash / Pro, PromptTemplates
+- **Version Control & Git Automation:** PyGithub, GitPython, GitHub REST API v3
+- **Testing & Sandbox:** Pytest, Subprocess execution isolation
 
 ---
 
-## 🏗️ Architecture
+## ✨ System Architecture
 
 ```
 GitHub Issue URL
       ↓
-┌─────────────────────────────────────────────────────┐
-│              LangGraph Agent Pipeline               │
-│                                                     │
-│  [1] Issue Analyzer    → Classifies bug type        │
-│  [2] Repo Explorer     → Clones repo, maps files    │
-│  [3] Bug Localizer     → Finds root cause (AST)     │
-│  [4] Fix Planner       → Plain-English plan         │
-│                                                     │
-│  ⏸️  HUMAN APPROVAL CHECKPOINT                      │
-│                                                     │
-│  [5] Code Engineer     → Generates unified diffs    │
-│  [6] Test Generator    → Writes pytest cases        │
-│  [7] Test Runner       → Runs pytest in subprocess  │
-│         ↓ FAIL (retry loop, max 3x)                 │
-│  [8] Git Manager       → Branch → Commit → PR       │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                 Frontend Dashboard (React + Vite)           │
+│    • Live issue submission       • Real-time log terminal   │
+│    • 9-Node progress tracker     • Human approval interface │
+│    • Side-by-side diff viewer    • Verified PR link badge   │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ HTTP / JSON API
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 FastAPI Backend (Port :8002)                │
+│                                                             │
+│   POST /agent/start    POST /agent/approve    GET /agent/:id│
+└──────────────────────────────┬──────────────────────────────┘
+                               │ StateGraph Execution
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   LangGraph Multi-Node Pipeline             │
+│                                                             │
+│   [1] Issue Analyzer   ➔ Fetches GitHub Issue & bug type   │
+│   [2] Repo Explorer    ➔ Clones repo, maps Python files    │
+│   [3] Bug Localizer    ➔ Two-pass LLM bug localization     │
+│   [4] Fix Planner      ➔ Synthesizes plain-English plan    │
+│                                                             │
+│   ⏸️  HUMAN APPROVAL CHECKPOINT (LangGraph interrupt)       │
+│                                                             │
+│   [5] Code Engineer    ➔ Generates unified diff patches    │
+│   [6] Test Generator   ➔ Writes pytest reproduction tests  │
+│   [7] Test Runner      ➔ Executes pytest via subprocess    │
+│          ↓ FAIL (Self-correcting retry loop, max 3x)        │
+│   [8] Git Manager      ➔ Creates branch, commits & PR      │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔥 Key Features
+## 🔥 Key Engineering Highlights
 
-| Feature | Description |
+| Feature | Production Implementation |
 |---|---|
-| **Human-in-the-Loop** | Agent pauses after planning and waits for your approval before writing any code |
-| **Unified Diffs** | Generates precise `before → after` patches, never blindly rewrites files |
-| **Self-Correcting** | Test Runner loops back to Code Engineer on failure (max 3 retries) |
-| **Real GitHub Integration** | Creates branch, commits, pushes, and opens PR via GitHub API |
-| **Structured PR** | Every PR includes root cause analysis, test summary, and files changed |
-
----
-
-## 🛠️ Tech Stack
-
-- **Agent Framework:** LangGraph (multi-node state machine with `interrupt_before`)
-- **LLM:** Google Gemini 2.0 Flash via LangChain
-- **GitHub Integration:** PyGithub + GitPython
-- **Backend:** FastAPI
-- **Test Execution:** pytest via subprocess isolation
+| **Human-in-the-Loop Checkpoint** | Pauses agent execution after planning via LangGraph `interrupt_before`, waiting for human review |
+| **Unified Diff Patching** | Synthesizes strict `before ➔ after` unified diffs instead of destructive file overwrites |
+| **Self-Correcting Test Loop** | Executes `pytest` in an isolated subprocess; on failure, loops back to the Code Engineer (max 3 retries) |
+| **Autonomous Git Automation** | Automates branch creation (`agent/fix-*`), file staging, commit messaging, and Pull Request creation |
+| **Structured PR Documentation** | Pull Requests include root cause analysis, fix explanation, test coverage, and files modified |
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Clone and install
+### 1. Prerequisites
+- **Node.js** v18+ & **npm**
+- **Python** 3.10+
+- **Git**
 
+### 2. Backend Setup
 ```bash
-git clone https://github.com/nik14ta/autonomous-code-agent.git
-cd autonomous-code-agent/backend
+cd backend
 python -m venv venv
-.\venv\Scripts\activate      # Windows
+.\venv\Scripts\activate       # On Windows (or 'source venv/bin/activate' on macOS/Linux)
 pip install -r requirements.txt
 ```
 
-### 2. Configure environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
+Configure your `backend/.env` file:
 ```env
-GEMINI_API_KEY="AIzaSy..."       # from aistudio.google.com/app/apikey
-GITHUB_TOKEN="ghp_..."           # from github.com/settings/tokens
+GEMINI_API_KEY="AIzaSy..."    # From https://aistudio.google.com/app/apikey
+GITHUB_TOKEN="ghp_..."        # From https://github.com/settings/tokens
 ```
 
-### 3. Run the server
-
+Start the FastAPI backend:
 ```bash
 uvicorn main:app --reload --port 8002
 ```
+*API documentation available at `http://localhost:8002/docs`.*
 
-Open **http://localhost:8002/docs**
+### 3. Frontend Setup
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+*Open `http://localhost:5173/` in your browser to access the dashboard.*
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/agent/start` | Start the agent with a GitHub issue URL |
-| `GET` | `/agent/{run_id}` | Get current agent state and logs |
-| `POST` | `/agent/approve` | Resume agent after human approval |
-| `POST` | `/agent/reject/{run_id}` | Cancel the agent run |
+| `POST` | `/agent/start` | Initiates agent run with GitHub issue URL (runs to approval checkpoint) |
+| `GET` | `/agent/{run_id}` | Retrieves current state, execution logs, and diffs |
+| `POST` | `/agent/approve` | Resumes agent after human approval (executes fix, tests, & PR creation) |
+| `POST` | `/agent/reject/{run_id}` | Terminates and cancels the agent run |
 
 ---
 
-## 🔄 Workflow Example
+## 📁 Repository Structure
 
-**Step 1 — Start the agent:**
-```json
-POST /agent/start
-{
-  "github_issue_url": "https://github.com/your-org/your-repo/issues/42"
-}
 ```
-
-**Response (agent paused at checkpoint):**
-```json
-{
-  "run_id": "abc-123",
-  "status": "awaiting_approval",
-  "bug_type": "validation",
-  "suspicious_files": ["api/users.py", "schemas/user.py"],
-  "confidence_score": 0.87,
-  "fix_plan": "Add input validation before passing data to ORM..."
-}
-```
-
-**Step 2 — Review the plan and approve:**
-```json
-POST /agent/approve
-{
-  "run_id": "abc-123"
-}
-```
-
-**Response (completed):**
-```json
-{
-  "status": "completed",
-  "pr_url": "https://github.com/your-org/your-repo/pull/43",
-  "tests_passed": 12,
-  "tests_total": 12,
-  "diffs": { "api/users.py": "--- a/api/users.py\n+++ b/api/users.py\n..." }
-}
+autonomous-code-agent/
+├── README.md                      # Complete system documentation
+├── .gitignore                     # Ignores venv, node_modules, .env, and dist
+│
+├── backend/                       # Python & FastAPI Service
+│   ├── main.py                    # REST API endpoints & lifecycle
+│   ├── requirements.txt           # Python dependencies
+│   ├── .env                       # API keys & configuration
+│   ├── agent/
+│   │   ├── state.py               # Shared AgentState TypedDict schema
+│   │   ├── graph.py               # LangGraph state machine & checkpointing
+│   │   ├── llm.py                 # LLM factory & mock demo fallbacks
+│   │   └── nodes/
+│   │       ├── issue_analyzer.py  # Node 1: Issue fetching & classification
+│   │       ├── repo_explorer.py   # Node 2: Repository cloning & AST discovery
+│   │       ├── bug_localizer.py   # Node 3: Suspect function localization
+│   │       ├── fix_planner.py     # Node 4: Plain-English patch planner
+│   │       ├── code_engineer.py   # Node 5: Unified diff synthesis
+│   │       ├── test_generator.py  # Node 6: Pytest test case generator
+│   │       ├── test_runner.py     # Node 7: Subprocess test execution
+│   │       └── git_manager.py     # Node 8: Git branch, commit, & PR creation
+│   └── services/
+│       └── github_service.py      # GitHub REST API client wrapper
+│
+└── frontend/                      # React & Vite Dashboard
+    ├── package.json               # Frontend dependencies & scripts
+    ├── index.html                 # App HTML5 template
+    ├── vite.config.js             # Vite development & build configuration
+    └── src/
+        ├── main.jsx               # React entry point
+        ├── App.jsx                # Full-featured dashboard with approval flow
+        └── index.css              # Dark theme styling, animations, & typography
 ```
 
 ---
 
-## 📁 Project Structure
+## 📋 Resume Summary
 
-```
-backend/
-├── main.py                    # FastAPI server
-├── agent/
-│   ├── state.py               # Shared AgentState TypedDict
-│   ├── graph.py               # LangGraph state machine
-│   ├── llm.py                 # LLM factory (Gemini / Demo mode)
-│   └── nodes/
-│       ├── issue_analyzer.py  # Node 1: Fetch & classify GitHub issue
-│       ├── repo_explorer.py   # Node 2: Clone repo, list files
-│       ├── bug_localizer.py   # Node 3: Two-pass bug localization
-│       ├── fix_planner.py     # Node 4: Plain-English fix plan
-│       ├── code_engineer.py   # Node 5: Generate unified diffs
-│       ├── test_generator.py  # Node 6: Write pytest cases
-│       ├── test_runner.py     # Node 7: Run pytest in subprocess
-│       └── git_manager.py     # Node 8: Branch → Commit → PR
-└── services/
-    └── github_service.py      # GitHub API wrapper
-```
-
----
-
-## 📋 Resume Bullet Points
-
-> **Autonomous Software Engineer Agent** | LangGraph, Gemini, FastAPI, GitHub API
-> - Architected a **9-node LangGraph agent** that analyzes GitHub Issues, localizes bugs using two-pass LLM reasoning, and generates unified diff patches for Python repositories.
-> - Implemented a **human-in-the-loop approval checkpoint** using LangGraph `interrupt_before` that pauses the agent after fix planning and resumes only on explicit engineer approval.
-> - Engineered a **self-correcting test loop** that runs `pytest` via subprocess isolation, analyzes failures, and retries the fix up to 3 times before escalating to the Git Manager.
-> - Automated the full **Git workflow** (branch creation, commit, PR) via the GitHub REST API, with structured PR descriptions including root cause analysis and test coverage summary.
-
----
-
-## 🗺️ Roadmap
-
-- [ ] **V2:** Next.js dashboard with real-time agent log streaming (SSE)
-- [ ] **V2:** Side-by-side diff viewer with syntax highlighting  
-- [ ] **V3:** GitHub App OAuth integration (no Personal Access Token needed)
-- [ ] **V3:** JavaScript/TypeScript repository support
-- [ ] **V4:** Docker sandbox for safe test execution
+> **Autonomous Software Engineer Agent** | React, Python, FastAPI, LangGraph, Gemini, GitHub API
+> - Built a **full-stack agentic developer studio** (React, Vite, FastAPI) that autonomously resolves GitHub Issues from bug triage to Pull Request creation.
+> - Implemented an **8-node LangGraph state machine** featuring a **Human-in-the-Loop approval checkpoint** (`interrupt_before`) ensuring engineer review prior to code synthesis.
+> - Engineered an automated **self-correcting testing loop** that runs `pytest` in subprocess isolation and handles iterative refactoring upon test failure.
+> - Automated end-to-end Git operations via the **GitHub REST API**, generating unified diff patches and Pull Requests with AI-generated root cause analyses.
 
 ---
 
 ## 📄 License
-
-MIT
+MIT License
