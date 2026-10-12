@@ -1,0 +1,10 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+cloned_repos/
+
+# OS
+.DS_Store
