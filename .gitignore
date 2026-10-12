@@ -1,10 +1,16 @@
 # Python
-venv/
-__pycache__/
+backend/venv/
+backend/__pycache__/
 *.pyc
-.env
-*.egg-info/
+*.env
+backend/.env
 cloned_repos/
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
 
 # OS
 .DS_Store
